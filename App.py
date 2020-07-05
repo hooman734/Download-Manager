@@ -165,7 +165,7 @@ progress = ttk.Progressbar(frame_status, orient=HORIZONTAL, length=700, mode='de
 progress.grid(row=6, column=0, sticky=W + E)
 
 # widgets
-label_link = tk.Label(frame_input, text=".. Input a link here for start downloading..", font=('Times', 14))
+label_link = tk.Label(frame_input, text=".. Input a link here to start downloading...", font=('Times', 14))
 label_link.pack(fill=X, side=TOP, pady=10)
 entry_link = tk.Entry(frame_input, textvariable=input_link, font=('Mono', 12))
 entry_link.pack(fill=X, expand=1, side=LEFT, pady=5, padx=10)
