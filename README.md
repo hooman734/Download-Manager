@@ -2,7 +2,7 @@
 
 Python GUI download manager using `Tkinter`
 it uses `pySmartDL` as the underlying module 
-import time
+
 
 * `python 3`
 
