@@ -8,15 +8,18 @@ import threading
 import subprocess
 import os
 
+import about.about_me as am  # import a costumed file to show about
+
 # define main window
 root = tk.Tk()
-root.title("AMIR Download Manager")
+root.title("AMIR Download Manager - By Hooman Hesamyan V 0.1.2")
 root.geometry("700x400")
 
-
 # define parameters
+default_color = ''
+is_paused = False
 dl_object = ''
-default_browser = ''
+default_browser = ''  # e.g. in UBUNTU is Nautilus
 input_link = tk.StringVar()
 status_message = tk.StringVar()
 speed_message = tk.StringVar()
@@ -24,14 +27,32 @@ dest_message = tk.StringVar()
 size_message = tk.StringVar()
 time_message = tk.StringVar()
 dest = Path.home() / "Downloads" / "AMIR-Downloader"
-dest.mkdir(mode=0o777, parents=True, exist_ok=True)  # make working directory
+dest.mkdir(mode=0o777, parents=True, exist_ok=True)  # construct a working directory
 
 
 # define functions
 def terminate(obj):
     obj.stop()
     button_pause['state'] = DISABLED
-    button_resume['state'] = DISABLED
+    button_stop['text'] = 'Terminated!'
+    button_stop['state'] = DISABLED
+    button_stop['bg'] = '#7d3a19'
+
+
+def pause_resume(obj):
+    global is_paused
+    if is_paused:
+        obj.resume()
+        button_pause['text'] = "Pause!"
+        button_pause['fg'] = "red"
+        button_pause.flash()
+        is_paused = not is_paused
+    else:
+        obj.pause()
+        button_pause['text'] = "Resume!"
+        button_pause['fg'] = "green"
+        button_pause.flash()
+        is_paused = not is_paused
 
 
 # handle download
@@ -50,10 +71,8 @@ def download(__url__):
 
     button_stop['command'] = lambda: terminate(dl_object)
     button_stop['state'] = NORMAL
-    button_pause['command'] = lambda: dl_object.pause()
+    button_pause['command'] = lambda: pause_resume(dl_object)
     button_pause['state'] = NORMAL
-    button_resume['command'] = lambda: dl_object.unpause()
-    button_resume['state'] = NORMAL
 
     def do_download(sem):
         with sem:
@@ -74,13 +93,14 @@ def download(__url__):
                 speed_message.set(f"Speed: {dl_object.get_speed(human=True)}")
                 dest_message.set(f"Working directory: {dest}")
                 size_message.set(f"Downloaded so far: {dl_object.get_dl_size(human=True)}")
-                time_message.set(f"Elapsed Time: {round(time.perf_counter() - start_time, 1)}" if dl_object.get_status() != 'paused' else '-')
+                time_message.set(
+                    f"Elapsed Time: {round(time.perf_counter() - start_time, 1)}" if dl_object.get_status() != 'paused' else 'Elapsed Time: . . . ')
                 progress['value'] = 100 * dl_object.get_progress()
                 time.sleep(0.2)
                 root.update_idletasks()
             if len(dl_object.get_errors()) == 0:
                 start_point = time.perf_counter()
-                while time.perf_counter() - start_point < 5:
+                while time.perf_counter() - start_point < 2:
                     status_message.set(f"Status: {dl_object.get_status()}")
                     speed_message.set(f"Speed: {dl_object.get_speed(human=True)}")
                     dest_message.set(f"Saved in: {dl_object.get_dest()}")
@@ -137,23 +157,30 @@ def paste(__input__):
 
 
 def paste_and_down(__input__):
+    global default_color
     i0 = __input__
     i1 = entry_link.clipboard_get()
     input_link.set(i0 + i1)
     download(entry_link.get())
     button_download.flash()
     button_download['state'] = DISABLED
+    default_color = button_stop.cget('background')
 
 
 def clear_reset():
     input_link.set('')
     button_download['state'] = NORMAL
+    button_stop['state'] = NORMAL
+    button_stop['bg'] = default_color
+    button_stop['text'] = "Terminate Downloading!"
 
 
 def start_downloading():
+    global default_color
     download(entry_link.get())
     button_download.flash()
     button_download['state'] = DISABLED
+    default_color = button_stop.cget('background')
 
 
 def browsing():
@@ -195,11 +222,10 @@ menu_edit.add_command(label="Paste", command=lambda: paste(entry_link.get()))
 menu_edit.add_command(label="Paste & Download", command=lambda: paste_and_down(entry_link.get()))
 #
 menu_download.add_command(label="Stop!", command=lambda: terminate(dl_object))
-menu_download.add_command(label="Pause!", command=lambda: dl_object.pause())
-menu_download.add_command(label="Resume!", command=lambda: dl_object.unpause())
+menu_download.add_command(label="Pause!/Resume!", command=lambda: pause_resume(dl_object))
 #
 menu_help.add_separator()
-menu_help.add_command(label="About")
+menu_help.add_command(label="About", command=lambda: am.about())
 
 # define and scaffold progress frame
 frame_progress = tk.Frame(root, relief=GROOVE, borderwidth=5)
@@ -239,7 +265,7 @@ progress = ttk.Progressbar(frame_progress, orient=HORIZONTAL, length=700, mode='
 progress.pack(fill=X, expand=1)
 
 # widgets
-label_link = tk.Label(frame_input, text=".. Input a link here to start downloading...", font=('Times', 14))
+label_link = tk.Label(frame_input, text="... Input a link here to start downloading ...", font=('Times', 14))
 label_link.pack(fill=X, side=TOP, pady=10)
 entry_link = tk.Entry(frame_input, textvariable=input_link, font=('Mono', 12))
 entry_link.pack(fill=X, expand=1, side=LEFT, pady=5, padx=10)
@@ -252,8 +278,6 @@ button_open = tk.Button(frame_action, text="Open Downloads!", command=lambda: br
 button_open.pack(fill=X, expand=1, side=BOTTOM, padx=10)
 
 # define and scaffold download operation keys
-button_resume = tk.Button(frame_dl_op, state=DISABLED, text="Resume!", width=20, fg="green")
-button_resume.pack(side=LEFT, padx=10)
 button_pause = tk.Button(frame_dl_op, state=DISABLED, text="Pause!", width=20, fg="#8f0926")
 button_pause.pack(side=RIGHT, padx=10)
 button_stop = tk.Button(frame_dl_op, state=DISABLED, text="Terminate Downloading!", width=20, fg="#12098f")
