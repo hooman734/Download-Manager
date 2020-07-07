@@ -16,6 +16,7 @@ root.geometry("700x400")
 
 # define parameters
 dl_object = ''
+default_browser = ''
 input_link = tk.StringVar()
 status_message = tk.StringVar()
 speed_message = tk.StringVar()
@@ -46,7 +47,6 @@ def download(__url__):
 
     url = __url__
     dest = str(dest)
-    dl_object = SmartDL(url, dest)
 
     button_stop['command'] = lambda: terminate(dl_object)
     button_stop['state'] = NORMAL
@@ -62,6 +62,8 @@ def download(__url__):
             except Exception as e:
                 print(f"------> {e}")
                 print(f"object error ---> {dl_object.get_errors()}")
+                status_message.set(f"Status: {e}")
+                root.update_idletasks()
 
     def show_progress(sem):
         with sem:
@@ -92,9 +94,15 @@ def download(__url__):
                 speed_message.set(f"Reason: {dl_object.get_errors()[0]}")
                 root.update_idletasks()
 
-    if len(__url__) == 0:
+    if len(url) == 0:
         button_download.flash()
     else:
+        try:
+            dl_object = SmartDL(url, dest)
+        except Exception as e:
+            print(f"Error in {e}")
+            status_message.set(f"Status: {e}")
+            root.update_idletasks()
         semaphore = threading.Semaphore(2)
         threading.Thread(target=do_download, args=(semaphore,)).start()
         threading.Thread(target=show_progress, args=(semaphore,)).start()
@@ -149,10 +157,12 @@ def start_downloading():
 
 
 def browsing():
-    default_browser = subprocess.run(["xdg-mime", "query", "default", "inode/directory"],
-                                     stdout=subprocess.PIPE).stdout.decode('utf-8')
-    default_browser = default_browser.split('.')[-2].lower()
-    os.system(f"{default_browser} {dest}")
+    global default_browser
+    if default_browser == '':
+        default_browser = subprocess.run(["xdg-mime", "query", "default", "inode/directory"],
+                                         stdout=subprocess.PIPE).stdout.decode('utf-8').split('.')[-2].lower()
+
+    threading.Thread(target=os.system, args=(f"{default_browser} {dest}",)).start()
 
 
 # define menu bar
