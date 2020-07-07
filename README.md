@@ -1,6 +1,21 @@
 ### Download Manager
 
-Python GUI download manager using Tkinter
+Python GUI download manager using `Tkinter`
+it uses `pySmartDL` as the underlying module 
+import time
+
+* `python 3`
+
+dependencies:
+    + `pySmartDL`
+    * `tkinter`
+    * `tkinter.ttk`
+    * `pathlib`
+    * `threading`
+    * `subprocess`
+    * `os`
+    
+
 
 ![Idle](https://github.com/hooman734/Download-Manager/blob/master/screenshots/right_click.png)
 ##### inserting a downloading link
