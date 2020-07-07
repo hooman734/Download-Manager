@@ -1,5 +1,8 @@
 .pycharm/
 .idea/
 
+App.spec
+build/
+
 *.pyc
 test.py
