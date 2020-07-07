@@ -7,13 +7,13 @@ import time
 * `python 3`
 
 dependencies:
-    + `pySmartDL`
-    * `tkinter`
-    * `tkinter.ttk`
-    * `pathlib`
-    * `threading`
-    * `subprocess`
-    * `os`
+* `pySmartDL`
+* `tkinter`
+* `tkinter.ttk`
+* `pathlib`
+* `threading`
+* `subprocess`
+* `os`
     
 
 
