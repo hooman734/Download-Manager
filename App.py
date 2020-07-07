@@ -158,13 +158,20 @@ def paste(__input__):
 
 def paste_and_down(__input__):
     global default_color
+    # paste section
     i0 = __input__
     i1 = entry_link.clipboard_get()
     input_link.set(i0 + i1)
-    download(entry_link.get())
-    button_download.flash()
-    button_download['state'] = DISABLED
-    default_color = button_stop.cget('background')
+
+    # download section
+    link = entry_link.get()
+    if link != '':
+        download(link)
+        button_download.flash()
+        button_download['state'] = DISABLED
+        default_color = button_stop.cget('background')
+    else:
+        button_download.flash()
 
 
 def clear_reset():
@@ -177,10 +184,14 @@ def clear_reset():
 
 def start_downloading():
     global default_color
-    download(entry_link.get())
-    button_download.flash()
-    button_download['state'] = DISABLED
-    default_color = button_stop.cget('background')
+    link = entry_link.get()
+    if link != '':
+        download(link)
+        button_download.flash()
+        button_download['state'] = DISABLED
+        default_color = button_stop.cget('background')
+    else:
+        button_download.flash()
 
 
 def browsing():
