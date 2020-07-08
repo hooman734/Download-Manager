@@ -1,7 +1,4 @@
-## Name:
-#### Download Manager
-
-  
+# Download Manager  
 
 
 ## Description:
